@@ -168,6 +168,7 @@ LSTM shows more consistent performance across different prediction horizons.""")
 # Footer
 st.markdown("---")
 st.markdown("""
+**Created by Akash Chechare**
 Created with  using Python, TensorFlow, and Streamlit
 
 **Project:** Tesla Stock Price Prediction using Deep Learning (SimpleRNN & LSTM)
