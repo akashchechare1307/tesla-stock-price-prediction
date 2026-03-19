@@ -44,8 +44,7 @@ st.markdown("""
 body { background: linear-gradient(45deg, #0a0a15, #0d1b2a, #0f3a5a, #0a0a15); background-size: 400% 400%; animation: gradientAnim 15s ease infinite; }
 .stApp { background-color: transparent !important; }
 .main-title { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 900; text-align: center; background: linear-gradient(90deg, #00d4ff, #0099ff, #ffff00, #00d4ff); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientAnim 5s ease infinite, neonGlow 3s ease infinite; margin-bottom: 1rem; }
-.subtitle { text-align: center; font-size: 1.3rem; color: #aaaacc; margin-bottom: 2rem; letter-spacing: 2px; }
-.glow-card { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,153,255,0.1)); border: 1px solid rgba(0,212,255,0.3); border-radius: 20px; padding: 20px; transition: all 0.3s ease; animation: cardFloat 3s ease infinite; }
+color: #ffffff; margin-bottom: 2rem; letter-spacing: 2px; }.glow-card { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,153,255,0.1)); border: 1px solid rgba(0,212,255,0.3); border-radius: 20px; padding: 20px; transition: all 0.3s ease; animation: cardFloat 3s ease infinite; }
 .glow-card:hover { border-color: #00d4ff; box-shadow: 0 0 30px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.3); transform: translateY(-8px) scale(1.02); }
 .stat-number { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, #00d4ff, #0099ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
 .stat-label { text-align: center; color: #aaaacc; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; }
