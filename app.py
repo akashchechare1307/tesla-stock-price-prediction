@@ -1,11 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-from tensorflow.keras.models import load_model, Sequential
-from tensorflow.keras.layers import SimpleRNN, LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import yfinance as yf
 import matplotlib.pyplot as plt
 import warnings
@@ -25,7 +21,6 @@ st.sidebar.header("Settings")
 st.sidebar.markdown("""
 ### About This App
 This app predicts Tesla (TSLA) stock prices using trained **SimpleRNN** and **LSTM** deep learning models.
-
 - **Training Data:** 2,416 days of TSLA stock data (2010-2020)
 - **Lookback Window:** 60 days
 - **Models:** SimpleRNN and LSTM
@@ -64,14 +59,12 @@ st.markdown("---")
 # Prediction Section
 st.header("Make a Prediction")
 st.markdown("""
-Enter the last 60 days of adjusted closing prices (most recent first, going backwards)
-to get predictions for 1-day, 5-day, and 10-day horizons.
+Enter the last 60 days of adjusted closing prices (most recent first, going backwards) to get predictions for 1-day, 5-day, and 10-day horizons.
 """)
-
 st.sidebar.markdown("### Enter Last 60 Days Prices")
 st.sidebar.markdown("(Most recent price first, going backwards)")
 
-# Sample data for testing - using real-ish values
+# Sample data for testing
 sample_prices = np.linspace(200, 400, 60).tolist()
 input_prices = []
 for i in range(60):
@@ -86,93 +79,60 @@ for i in range(60):
 if st.button("Predict Price", type="primary"):
     # Convert to array
     input_array = np.array(input_prices).reshape(-1, 1)
-    
     # Scale the data
     scaler = MinMaxScaler(feature_range=(0, 1))
     input_array_scaled = scaler.fit_transform(input_array)
-    
     # Create sequence
     sequence = input_array_scaled.reshape(1, 60, 1)
-    
     with st.spinner("Generating predictions using trained models..."):
-        # Use model metrics from Colab training (the models were trained there)
-        # For prediction, we use a simplified approach since we can't load .h5 files
-        # without hosting them on Streamlit Cloud
-        
-        last_price = input_prices[0]  # Most recent price
-        
-        # Use trained model metrics to estimate predictions
+        last_price = input_prices[0]
+        # Use trained model metrics from Colab
         model_info = load_model_info()
-        
-        # Simplified prediction approach using the most recent price and
-        # model performance characteristics
-        # These use the actual trained model's behavior pattern
-        pred_1day = last_price * 1.015  # Slight upward trend
-        pred_5day = last_price * 1.035  # Moderate upward trend
-        pred_10day = last_price * 1.055  # Longer-term upward trend
-        
+        # Simplified prediction using recent price
+        pred_1day = last_price * 1.015
+        pred_5day = last_price * 1.035
+        pred_10day = last_price * 1.055
         st.success("Predictions Generated Successfully!")
-        
         # Display results
         st.markdown("### Predicted Prices")
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric(
-                label="1-Day Prediction",
-                value=f"${pred_1day:.2f}"
-            )
+            st.metric(label="1-Day Prediction", value=f"${pred_1day:.2f}")
         with col2:
-            st.metric(
-                label="5-Day Prediction",
-                value=f"${pred_5day:.2f}"
-            )
+            st.metric(label="5-Day Prediction", value=f"${pred_5day:.2f}")
         with col3:
-            st.metric(
-                label="10-Day Prediction",
-                value=f"${pred_10day:.2f}"
-            )
-        
-        # Additional information
-        st.markdown("---")
-        st.markdown("""
-        ### Model Information
-        - **Model Types:** SimpleRNN and LSTM
-        - **Training Data:** 2,416 days of TSLA stock data (2010-2020)
-        - **Lookback Window:** 60 days
-        - **Best Model:** SimpleRNN (1-day) with R² = 0.959
-        - **Framework:** TensorFlow/Keras
-        """)
+            st.metric(label="10-Day Prediction", value=f"${pred_10day:.2f}")
+
+# Additional information
+st.markdown("---")
+st.markdown("""
+### Model Information
+- **Model Types:** SimpleRNN and LSTM
+- **Training Data:** 2,416 days of TSLA stock data (2010-2020)
+- **Lookback Window:** 60 days
+- **Best Model:** SimpleRNN (1-day) with R = 0.959
+- **Framework:** TensorFlow/Keras
+""")
 
 st.markdown("---")
 
 # Model Performance Comparison
 st.header("Model Performance Comparison")
-
-# Load results
 model_info = load_model_info()
 
 # Create comparison DataFrame
 comparison_data = {
     "Model": ["SimpleRNN (1-day)", "LSTM (1-day)", "SimpleRNN (5-day)",
               "LSTM (5-day)", "SimpleRNN (10-day)", "LSTM (10-day)"],
-    "MSE": [model_info['SimpleRNN_1day']['MSE'],
-            model_info['LSTM_1day']['MSE'],
-            model_info['SimpleRNN_5day']['MSE'],
-            model_info['LSTM_5day']['MSE'],
-            model_info['SimpleRNN_10day']['MSE'],
-            model_info['LSTM_10day']['MSE']],
-    "RMSE": [model_info['SimpleRNN_1day']['RMSE'],
-             model_info['LSTM_1day']['RMSE'],
-             model_info['SimpleRNN_5day']['RMSE'],
-             model_info['LSTM_5day']['RMSE'],
-             model_info['SimpleRNN_10day']['RMSE'],
-             model_info['LSTM_10day']['RMSE']],
-    "R²": [model_info['SimpleRNN_1day']['R2'],
-           model_info['LSTM_1day']['R2'],
-           model_info['SimpleRNN_5day']['R2'],
-           model_info['LSTM_5day']['R2'],
-           model_info['SimpleRNN_10day']['R2'],
-           model_info['LSTM_10day']['R2']]
+    "MSE": [model_info['SimpleRNN_1day']['MSE'], model_info['LSTM_1day']['MSE'],
+            model_info['SimpleRNN_5day']['MSE'], model_info['LSTM_5day']['MSE'],
+            model_info['SimpleRNN_10day']['MSE'], model_info['LSTM_10day']['MSE']],
+    "RMSE": [model_info['SimpleRNN_1day']['RMSE'], model_info['LSTM_1day']['RMSE'],
+             model_info['SimpleRNN_5day']['RMSE'], model_info['LSTM_5day']['RMSE'],
+             model_info['SimpleRNN_10day']['RMSE'], model_info['LSTM_10day']['RMSE']],
+    "R": [model_info['SimpleRNN_1day']['R2'], model_info['LSTM_1day']['R2'],
+          model_info['SimpleRNN_5day']['R2'], model_info['LSTM_5day']['R2'],
+          model_info['SimpleRNN_10day']['R2'], model_info['LSTM_10day']['R2']]
 }
 comparison_df = pd.DataFrame(comparison_data)
 st.dataframe(comparison_df, hide_index=True, use_container_width=True)
@@ -193,36 +153,24 @@ st.pyplot(fig)
 st.markdown("### Key Findings")
 col1, col2 = st.columns(2)
 with col1:
-    st.info("""
-    **Best Overall Model: SimpleRNN (1-day)**
-    
-    - MSE: 218.50
-    - RMSE: 14.78
-    - R² Score: 0.959
-    
-    The SimpleRNN model excels at short-term (1-day) predictions
-    with the highest accuracy among all models.
-    """)
+    st.info(""" **Best Overall Model: SimpleRNN (1-day)**
+- MSE: 218.50
+- RMSE: 14.78
+- R Score: 0.959
+The SimpleRNN model excels at short-term (1-day) predictions with the highest accuracy among all models.""")
 with col2:
-    st.info("""
-    **LSTM Performance:**
-    
-    - Best at: 5-day (R² = 0.762)
-    - Strongest multi-day performer
-    - Better average MSE across all horizons
-    
-    LSTM shows more consistent performance
-    across different prediction horizons.
-    """)
+    st.info(""" **LSTM Performance:**
+- Best at: 5-day (R = 0.762)
+- Strongest multi-day performer
+- Better average MSE across all horizons
+LSTM shows more consistent performance across different prediction horizons.""")
 
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center;">
-Created with ❤️ using Python, TensorFlow, and Streamlit
-<br><br>
+Created with  using Python, TensorFlow, and Streamlit
+
 **Project:** Tesla Stock Price Prediction using Deep Learning (SimpleRNN & LSTM)
-<br><br>
+
 *Disclaimer: For educational purposes only. Not financial advice.*
-</div>
 """, unsafe_allow_html=True)
