@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 import yfinance as yf
+import matplotlib.pyplot as plt
 
 # Page configuration
 st.set_page_config(page_title="Tesla Stock Price Predictor", page_icon="chart_with_upwards_trend", layout="wide")
@@ -157,7 +158,7 @@ comparison_data = {
 comparison_df = pd.DataFrame(comparison_data)
 st.dataframe(comparison_df, hide_index=True, use_container_width=True)
 
-import matplotlib.pyplot as plt
+
 fig, ax = plt.subplots(figsize=(10, 5))
 models = comparison_data["Model"]
 mse_values = comparison_data["MSE"]
