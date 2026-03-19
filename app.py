@@ -2,10 +2,8 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.models import Sequential
+import torch
+import torch.nn as nn
 
 # Page configuration
 st.set_page_config(page_title="Tesla Stock Price Predictor", page_icon="chart_with_upwards_trend")
@@ -18,7 +16,7 @@ st.sidebar.header("User Input")
 
 # Explanation
 st.markdown("""
-This app predicts Tesla (TSLA) stock prices using trained LSTM and SimpleRNN models.
+This app predicts Tesla (TSLA) stock prices using a trained LSTM model built with PyTorch.
 Input the last 60 days of adjusted closing prices to get predictions.
 """)
 
@@ -41,17 +39,45 @@ for i in range(60):
 if st.sidebar.button("Predict Price"):
     # Convert to array
     input_array = np.array(input_prices).reshape(-1, 1)
+
     # Scale the data
     scaler = MinMaxScaler(feature_range=(0, 1))
     input_array_scaled = scaler.fit_transform(input_array)
-    # Create sequence
-    sequence = input_array_scaled.reshape(1, 60, 1)
-    # Load pre-trained model (assumes model is saved as best_model.h5)
+
+    # Create sequence for LSTM (batch_size=1, seq_len=60, features=1)
+    sequence = torch.FloatTensor(input_array_scaled.reshape(1, 60, 1))
+
+    # Define PyTorch LSTM model (same architecture as trained model)
+    class LSTMPredictor(nn.Module):
+        def __init__(self, input_size=1, hidden_size=50, num_layers=2, output_size=1):
+            super(LSTMPredictor, self).__init__()
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
+            self.fc = nn.Linear(hidden_size, output_size)
+
+        def forward(self, x):
+            h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
+            c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
+            out, _ = self.lstm(x, (h0, c0))
+            out = self.fc(out[:, -1, :])
+            return out
+
+    # Load model (saved PyTorch model)
     try:
-        model = load_model("best_model.h5")
-        # Make predictions for 1, 5, and 10 days
-        pred_1day = scaler.inverse_transform(model.predict(sequence, verbose=0))
+        model = LSTMPredictor()
+        model_state = torch.load("best_model.pth", map_location=torch.device("cpu"), weights_only=True)
+        model.load_state_dict(model_state)
+        model.eval()
+
+        # Make prediction
+        with torch.no_grad():
+            pred_scaled = model(sequence)
+            pred_scaled_np = pred_scaled.numpy()
+            pred_1day = scaler.inverse_transform(pred_scaled_np)
+
         st.success("Predictions Generated Successfully!")
+
         # Display results
         st.markdown("### Predicted Prices")
         col1, col2, col3 = st.columns(3)
@@ -72,11 +98,12 @@ if st.sidebar.button("Predict Price"):
                 label="10-Day Prediction",
                 value=f"${pred_10day:.2f}"
             )
+
         # Additional information
         st.markdown("---")
         st.markdown("""
         ### Model Information
-        - **Model Type:** LSTM
+        - **Model Type:** LSTM (PyTorch)
         - **Training Data:** 2,416 days of TSLA stock data (2010-2020)
         - **Lookback Window:** 60 days
         - **R2 Score (1-day):** 0.856
@@ -85,7 +112,7 @@ if st.sidebar.button("Predict Price"):
         Always consult with a financial advisor before making investment decisions.
         """)
     except FileNotFoundError:
-        st.error("Model file not found. Please train the model first and save it as 'best_model.h5'")
+        st.error("Model file not found. Please train the model first and save it as 'best_model.pth'")
     except Exception as e:
         st.error(f"Error making prediction: {str(e)}")
 
@@ -116,6 +143,5 @@ st.pyplot(fig)
 # Footer
 st.markdown("---")
 st.markdown("""<div style="text-align: center; color: gray;">
-    <p>Created with ❤️ using Python, TensorFlow, and Streamlit</p>
-    <p><b>Project:</b> Tesla Stock Price Prediction using Deep Learning</p>
-</div>""", unsafe_allow_html=True)
+    <p>Created with &#10084; using Python, PyTorch, and Streamlit</p>
+    <p><b>Project:</b> Tesla Stock Price Prediction using Deep Learning</p></div>""", unsafe_allow_html=True)
