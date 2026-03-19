@@ -39,22 +39,22 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 * { font-family: 'Rajdhani', sans-serif; }
 @keyframes gradientAnim { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-@keyframes neonGlow { 0%,100%{text-shadow:0 0 10px #00ffff,0 0 20px #00ffff,0 0 30px #00ffff,0 0 40px #00ffff} 50%{text-shadow:0 0 5px #ff00ff,0 0 10px #ff00ff,0 0 15px #ff00ff,0 0 20px #ff00ff} }
+@keyframes neonGlow { 0%,100%{text-shadow:0 0 10px #00d4ff,0 0 20px #00d4ff,0 0 30px #00d4ff,0 0 40px #00d4ff} 50%{text-shadow:0 0 5px #0099ff,0 0 10px #0099ff,0 0 15px #0099ff,0 0 20px #0099ff} }
 @keyframes cardFloat { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-5px)} }
-body { background: linear-gradient(45deg, #0a0a1a, #0d1b2a, #1a0a2e, #0a0a1a); background-size: 400% 400%; animation: gradientAnim 15s ease infinite; }
+body { background: linear-gradient(45deg, #0a0a15, #0d1b2a, #0f3a5a, #0a0a15); background-size: 400% 400%; animation: gradientAnim 15s ease infinite; }
 .stApp { background-color: transparent !important; }
-.main-title { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 900; text-align: center; background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00, #00ffff); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientAnim 5s ease infinite, neonGlow 3s ease infinite; margin-bottom: 1rem; }
+.main-title { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 900; text-align: center; background: linear-gradient(90deg, #00d4ff, #0099ff, #ffff00, #00d4ff); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientAnim 5s ease infinite, neonGlow 3s ease infinite; margin-bottom: 1rem; }
 .subtitle { text-align: center; font-size: 1.3rem; color: #aaaacc; margin-bottom: 2rem; letter-spacing: 2px; }
-.glow-card { background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(255,0,255,0.1)); border: 1px solid rgba(0,255,255,0.3); border-radius: 20px; padding: 20px; transition: all 0.3s ease; animation: cardFloat 3s ease infinite; }
-.glow-card:hover { border-color: #00ffff; box-shadow: 0 0 30px rgba(0,255,255,0.5), 0 0 60px rgba(0,255,255,0.3); transform: translateY(-8px) scale(1.02); }
-.stat-number { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
+.glow-card { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,153,255,0.1)); border: 1px solid rgba(0,212,255,0.3); border-radius: 20px; padding: 20px; transition: all 0.3s ease; animation: cardFloat 3s ease infinite; }
+.glow-card:hover { border-color: #00d4ff; box-shadow: 0 0 30px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.3); transform: translateY(-8px) scale(1.02); }
+.stat-number { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, #00d4ff, #0099ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
 .stat-label { text-align: center; color: #aaaacc; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; }
-.sidebar-card { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 15px; margin-bottom: 20px; border-left: 3px solid #00ffff; }
-.sidebar-title { color: #00ffff; font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; letter-spacing: 1px; }
-.stButton>button { background: linear-gradient(90deg, #00ffff, #ff00ff); border: none; border-radius: 10px; padding: 10px 30px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s ease; }
-.stButton>button:hover { box-shadow: 0 0 20px rgba(0,255,255,0.5); transform: scale(1.05); }
+.sidebar-card { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 15px; margin-bottom: 20px; border-left: 3px solid #00d4ff; }
+.sidebar-title { color: #00d4ff; font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; letter-spacing: 1px; }
+.stButton>button { background: linear-gradient(90deg, #00d4ff, #0099ff); border: none; border-radius: 10px; padding: 10px 30px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s ease; }
+.stButton>button:hover { box-shadow: 0 0 20px rgba(0,212,255,0.5); transform: scale(1.05); }
 .css-1l02zno { background: rgba(0,0,0,0.2); }
-section[data-testid="stSidebar"] { background: linear-gradient(180deg, rgba(10,10,30,0.95), rgba(20,10,40,0.95)); border-right: 1px solid rgba(0,255,255,0.2); }
+section[data-testid="stSidebar"] { background: linear-gradient(180deg, rgba(10,10,30,0.95), rgba(20,10,40,0.95)); border-right: 1px solid rgba(0,212,255,0.2); }
 </style>
 """, unsafe_allow_html=True)
 # SIDEBAR
@@ -209,15 +209,15 @@ if st.session_state.predictions is not None:
     st.markdown("## 📈 HISTORICAL TSLA PRICE")
     dates = pd.date_range(end=pd.Timestamp.now().date(), periods=len(close_prices))
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=dates, y=close_prices, mode="lines", name="Close Price", line=dict(color="#00ffff", width=2, shape="spline")))
+    fig1.add_trace(go.Scatter(x=dates, y=close_prices, mode="lines", name="Close Price", line=dict(color="#00d4ff", width=2, shape="spline")))
     fig1.update_layout(title="Tesla (TSLA) Historical Close Price", xaxis_title="Date", yaxis_title="Price (USD)", template="plotly_dark", height=500)
     st.plotly_chart(fig1, use_container_width=True)
     # Chart 2: Prediction Visualization
     st.markdown("## 🔮 AI PREDICTION VISUALIZATION")
     pred_dates = pd.date_range(start=pd.Timestamp.now().date() + pd.Timedelta(days=1), periods=forecast_days)
     fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(x=dates[-100:], y=close_prices[-100:], mode="lines", name="Historical", line=dict(color="#00ffff", width=2, shape="spline")))
-    fig2.add_trace(go.Scatter(x=pred_dates, y=st.session_state.predictions, mode="lines+markers", name="Predicted", line=dict(color="#ff00ff", width=3, dash="dot"), marker=dict(size=10, color="#ff00ff")))
+    fig2.add_trace(go.Scatter(x=dates[-100:], y=close_prices[-100:], mode="lines", name="Historical", line=dict(color="#00d4ff", width=2, shape="spline")))
+    fig2.add_trace(go.Scatter(x=pred_dates, y=st.session_state.predictions, mode="lines+markers", name="Predicted", line=dict(color="#0099ff", width=3, dash="dot"), marker=dict(size=10, color="#0099ff")))
     fig2.update_layout(title=f"TSLA Price Forecast - Next {forecast_days} Days", xaxis_title="Date", yaxis_title="Price (USD)", template="plotly_dark", height=500, showlegend=True)
     fig2.add_shape(type="line", x0=pred_dates[0], x1=pred_dates[0], y0=min(close_prices[-100:]), y1=max(st.session_state.predictions)*1.1, line=dict(color="#ffff00", width=2, dash="dash"))
     st.plotly_chart(fig2, use_container_width=True)
