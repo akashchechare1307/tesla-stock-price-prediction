@@ -1,123 +1,153 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 import torch
 import torch.nn as nn
+from sklearn.preprocessing import MinMaxScaler
+import yfinance as yf
 
 # Page configuration
-st.set_page_config(page_title="Tesla Stock Price Predictor", page_icon="chart_with_upwards_trend")
+st.set_page_config(page_title="Tesla Stock Price Predictor", page_icon="chart_with_upwards_trend", layout="wide")
 
 st.title("Tesla Stock Price Prediction")
-st.subheader("Deep Learning Powered Predictions")
+st.subheader("Deep Learning Powered Predictions with PyTorch LSTM")
 
-# Sidebar for user inputs
-st.sidebar.header("User Input")
+# Sidebar
+st.sidebar.header("Settings")
 
-# Explanation
-st.markdown("""
-This app predicts Tesla (TSLA) stock prices using a trained LSTM model built with PyTorch.
-Input the last 60 days of adjusted closing prices to get predictions.
-""")
+# Fetch recent TSLA data
+@st.cache_data
 
-# User input for past 60 days prices
-st.sidebar.markdown("### Enter Last 60 Days Prices")
-st.sidebar.markdown("(Most recent price first, going backwards)")
+def get_tsla_data():
+    ticker = yf.Ticker("TSLA")
+    hist = ticker.history(period="2y")
+    return hist
 
-# Sample data for testing
-sample_prices = np.linspace(200, 400, 60).tolist()
-input_prices = []
-for i in range(60):
-    val = st.sidebar.number_input(
-        f"Day {60-i} ago",
-        value=sample_prices[i],
-        min_value=0.0,
-        key=f"day_{i}"
-    )
-    input_prices.append(val)
-
-if st.sidebar.button("Predict Price"):
-    # Convert to array
-    input_array = np.array(input_prices).reshape(-1, 1)
-
-    # Scale the data
+def train_and_predict(data, window_size=60, hidden_size=50, epochs=50):
+    prices = data['Close'].values.reshape(-1, 1)
     scaler = MinMaxScaler(feature_range=(0, 1))
-    input_array_scaled = scaler.fit_transform(input_array)
+    scaled = scaler.fit_transform(prices)
 
-    # Create sequence for LSTM (batch_size=1, seq_len=60, features=1)
-    sequence = torch.FloatTensor(input_array_scaled.reshape(1, 60, 1))
+    # Create sequences
+    X, y = [], []
+    for i in range(window_size, len(scaled)):
+        X.append(scaled[i-window_size:i, 0])
+        y.append(scaled[i, 0])
+    X, y = np.array(X), np.array(y)
 
-    # Define PyTorch LSTM model (same architecture as trained model)
-    class LSTMPredictor(nn.Module):
+    # Reshape for LSTM
+    X = X.reshape(X.shape[0], X.shape[1], 1)
+
+    # Split - last 20% for validation
+    split = int(len(X) * 0.8)
+    X_train, X_val = X[:split], X[split:]
+    y_train, y_val = y[:split], y[split:]
+
+    # PyTorch tensors
+    X_train_t = torch.FloatTensor(X_train)
+    y_train_t = torch.FloatTensor(y_train).unsqueeze(1)
+    X_val_t = torch.FloatTensor(X_val)
+    y_val_t = torch.FloatTensor(y_val).unsqueeze(1)
+
+    # LSTM Model
+    class LSTMModel(nn.Module):
         def __init__(self, input_size=1, hidden_size=50, num_layers=2, output_size=1):
-            super(LSTMPredictor, self).__init__()
-            self.hidden_size = hidden_size
-            self.num_layers = num_layers
+            super(LSTMModel, self).__init__()
             self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
             self.fc = nn.Linear(hidden_size, output_size)
 
         def forward(self, x):
-            h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
-            c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
+            h0 = torch.zeros(2, x.size(0), 50)
+            c0 = torch.zeros(2, x.size(0), 50)
             out, _ = self.lstm(x, (h0, c0))
-            out = self.fc(out[:, -1, :])
-            return out
+            return self.fc(out[:, -1, :])
 
-    # Load model (saved PyTorch model)
-    try:
-        model = LSTMPredictor()
-        model_state = torch.load("best_model.pth", map_location=torch.device("cpu"), weights_only=True)
-        model.load_state_dict(model_state)
-        model.eval()
+    model = LSTMModel()
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-        # Make prediction
-        with torch.no_grad():
-            pred_scaled = model(sequence)
-            pred_scaled_np = pred_scaled.numpy()
-            pred_1day = scaler.inverse_transform(pred_scaled_np)
+    # Training
+    for epoch in range(epochs):
+        model.train()
+        optimizer.zero_grad()
+        output = model(X_train_t)
+        loss = criterion(output, y_train_t)
+        loss.backward()
+        optimizer.step()
 
-        st.success("Predictions Generated Successfully!")
+    # Predict next day
+    model.eval()
+    with torch.no_grad():
+        last_seq = X_val_t[-1:].unsqueeze(0)
+        pred_scaled = model(last_seq).numpy()[0, 0]
 
-        # Display results
-        st.markdown("### Predicted Prices")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric(
-                label="1-Day Prediction",
-                value=f"${pred_1day[0][0]:.2f}"
-            )
-        with col2:
-            pred_5day = pred_1day[0][0] * 1.02
-            st.metric(
-                label="5-Day Prediction",
-                value=f"${pred_5day:.2f}"
-            )
-        with col3:
-            pred_10day = pred_1day[0][0] * 1.05
-            st.metric(
-                label="10-Day Prediction",
-                value=f"${pred_10day:.2f}"
-            )
+    pred_price = scaler.inverse_transform([[pred_scaled]])[0, 0]
 
-        # Additional information
-        st.markdown("---")
-        st.markdown("""
-        ### Model Information
-        - **Model Type:** LSTM (PyTorch)
-        - **Training Data:** 2,416 days of TSLA stock data (2010-2020)
-        - **Lookback Window:** 60 days
-        - **R2 Score (1-day):** 0.856
-        - **RMSE (1-day):** $27.57
-        **Note:** These predictions are for educational purposes only.
-        Always consult with a financial advisor before making investment decisions.
-        """)
-    except FileNotFoundError:
-        st.error("Model file not found. Please train the model first and save it as 'best_model.pth'")
-    except Exception as e:
-        st.error(f"Error making prediction: {str(e)}")
+    # Model metrics on validation set
+    with torch.no_grad():
+        val_pred = model(X_val_t).numpy().flatten()
+    mse = np.mean((val_pred - y_val) ** 2)
+    ss_res = np.sum((y_val - val_pred) ** 2)
+    ss_tot = np.sum((y_val - np.mean(y_val)) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
 
-# Display model comparison chart
+    return pred_price, mse, r2, scaler, X_val_t, model
+
+# Display TSLA data
+with st.expander("View Recent TSLA Data"):
+    data = get_tsla_data()
+    st.write(f"**Latest TSLA Price:** ${data['Close'].iloc[-1]:.2f}")
+    st.dataframe(data.tail(10), use_container_width=True)
+
 st.markdown("---")
+
+# Prediction
+if st.button("Train Model & Predict Next Day Price", type="primary"):
+    with st.spinner("Training LSTM model with PyTorch..."):
+        pred_price, mse, r2, scaler, X_val, model = train_and_predict(get_tsla_data())
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(label="1-Day Prediction", value=f"${pred_price:.2f}")
+    with col2:
+        data = get_tsla_data()
+        current_price = data['Close'].iloc[-1]
+        change = pred_price - current_price
+        st.metric(label="Current Price", value=f"${current_price:.2f}", delta=f"${change:+.2f}")
+    with col3:
+        st.metric(label="Validation R2", value=f"{r2:.3f}")
+
+    st.success(f"Model trained! MSE: {mse:.2f}, R2: {r2:.3f}")
+
+    # Plot actual vs predicted for validation period
+    with torch.no_grad():
+        val_pred_scaled = model(X_val).numpy().flatten()
+
+    # Inverse transform
+    prices = get_tsla_data()['Close'].values.reshape(-1, 1)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit(prices)
+
+    # Get the dates for validation period
+    split = int(len(prices) * 0.8)
+    dates_val = data.index[-(len(data) - split):]
+    dates_pred = data.index[-(len(data) - split):]
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(dates_val, prices[-(len(data) - split):], label="Actual Price", color="blue", linewidth=2)
+    ax.plot(dates_pred, scaler.inverse_transform(val_pred_scaled.reshape(-1, 1)), label="Predicted Price", color="red", linestyle="--", linewidth=2)
+    ax.set_title("Actual vs Predicted Tesla Stock Price (Validation Set)", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price (USD)")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    st.pyplot(fig)
+
+st.markdown("---")
+
+# Model Comparison
 st.header("Model Performance Comparison")
 comparison_data = {
     "Model": ["SimpleRNN (1-day)", "LSTM (1-day)", "SimpleRNN (5-day)",
@@ -126,9 +156,8 @@ comparison_data = {
     "R2": [0.941, 0.856, -0.472, 0.730, -0.595, 0.634]
 }
 comparison_df = pd.DataFrame(comparison_data)
-st.dataframe(comparison_df, hide_index=True)
+st.dataframe(comparison_df, hide_index=True, use_container_width=True)
 
-# Plot comparison chart
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots(figsize=(10, 5))
 models = comparison_data["Model"]
@@ -143,5 +172,6 @@ st.pyplot(fig)
 # Footer
 st.markdown("---")
 st.markdown("""<div style="text-align: center; color: gray;">
-    <p>Created with &#10084; using Python, PyTorch, and Streamlit</p>
-    <p><b>Project:</b> Tesla Stock Price Prediction using Deep Learning</p></div>""", unsafe_allow_html=True)
+    <p>Created with ❤️ using Python, PyTorch, yfinance, and Streamlit</p>
+    <p><b>Project:</b> Tesla Stock Price Prediction using Deep Learning (SimpleRNN & LSTM)</p>
+    <p><i>Disclaimer: For educational purposes only. Not financial advice.</i></p></div>""", unsafe_allow_html=True)
