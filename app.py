@@ -78,8 +78,8 @@ def train_and_predict(data, window_size=60, hidden_size=50, epochs=50):
     # Predict next day
     model.eval()
     with torch.no_grad():
-        last_seq = X_val_t[-1:].unsqueeze(0)
-        pred_scaled = model(last_seq).numpy()[0, 0]
+        last_seq = X_val_t[-1:]      
+                   pred_scaled = model(last_seq).numpy()[0, 0] 
 
     pred_price = scaler.inverse_transform([[pred_scaled]])[0, 0]
 
