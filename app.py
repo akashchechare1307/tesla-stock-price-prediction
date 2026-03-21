@@ -1,4 +1,4 @@
-st.markdown('<style>body{background-color:#000;color:#fff}.stApp{background-color:#000!important;color:#fff!important}*{color:#fff!important}</style>',unsafe_allow_html=True)
+st.markdown("""<style>body{background-color:#000;color:#fff}.stApp{background-color:#000!important;color:#fff!important}*{color:#fff!important}</style>""",unsafe_allow_html=True)
 import streamlit as st
 import pandas as pd
 import numpy as np
