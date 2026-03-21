@@ -1,4 +1,4 @@
-36
+color: #aaaacc    color: #ffffffbody { background: linear-gradient(45deg, #0a0a15, #0d1b2a, #0f3a5a, #0a0a15); background-size: 400% 400%; animation: gradientAnim 15s ease infinite; }    body { background: #000000; }36
 import streamlit as st
 import pandas as pd
 import numpy as np
