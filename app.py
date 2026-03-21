@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -36,7 +37,7 @@ def simple_rnn_prediction(X_train, y_train, X_test):
         hidden_state = 0.7 * hidden_state + 0.3 * np.mean(seq)
         pred = hidden_state + np.random.normal(0, 0.02)
         predictions.append(pred)
-    return np.array(predictions)
+    return np.array(predictions).flatten()
 
 def lstm_prediction(X_train, y_train, X_test):
     np.random.seed(42)
@@ -48,7 +49,7 @@ def lstm_prediction(X_train, y_train, X_test):
         hidden_state = np.tanh(cell_state) * 0.9 + 0.1 * np.mean(seq)
         pred = hidden_state + np.random.normal(0, 0.015)
         predictions.append(pred)
-    return np.array(predictions)
+    return np.array(predictions).flatten()
 
 try:
     data = get_tesla_data()
@@ -90,10 +91,11 @@ try:
     
     progress_bar.progress(100)
     
-    simplernn_rmse = np.sqrt(mean_squared_error(y_test, simplernn_pred))
-    simplernn_mae = mean_absolute_error(y_test, simplernn_pred)
-    lstm_rmse = np.sqrt(mean_squared_error(y_test, lstm_pred))
-    lstm_mae = mean_absolute_error(y_test, lstm_pred)
+    y_test_flat = y_test.flatten()
+    simplernn_rmse = np.sqrt(mean_squared_error(y_test_flat, simplernn_pred))
+    simplernn_mae = mean_absolute_error(y_test_flat, simplernn_pred)
+    lstm_rmse = np.sqrt(mean_squared_error(y_test_flat, lstm_pred))
+    lstm_mae = mean_absolute_error(y_test_flat, lstm_pred)
     
     col1, col2 = st.columns(2)
     
@@ -109,7 +111,7 @@ try:
     
     st.write("---")
     
-    y_test_unscaled = scaler.inverse_transform(np.array(y_test).reshape(-1, 1)).flatten()
+    y_test_unscaled = scaler.inverse_transform(y_test_flat.reshape(-1, 1)).flatten()
     simplernn_unscaled = scaler.inverse_transform(simplernn_pred.reshape(-1, 1)).flatten()
     lstm_unscaled = scaler.inverse_transform(lstm_pred.reshape(-1, 1)).flatten()
     
