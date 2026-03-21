@@ -14,7 +14,7 @@ def get_tesla_data():
 
     data = yf.download("TSLA", start="2014-01-01", end="2026-01-01", progress=False)
     if data.empty:
-        raise ValueError("No data fetched"):
+        raise ValueError("No data fetched")
         
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = data.columns.get_level_values(0)
