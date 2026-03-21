@@ -1,5 +1,5 @@
-st.markdown("""<style>body{background-color:#000;color:#fff}.stApp{background-color:#000!important;color:#fff!important}*{color:#fff!important}</style>""",unsafe_allow_html=True)
 import streamlit as st
+st.markdown('<style>body { background-color: black; color: white; } .stApp { background-color: black; color: white; }</style>', unsafe_allow_html=True)
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
