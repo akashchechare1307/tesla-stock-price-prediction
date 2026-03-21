@@ -93,6 +93,12 @@ try:
     y_test_arr = np.array(y_test).reshape(-1)
     simplernn_arr = np.array(simplernn_pred).reshape(-1)
     lstm_arr = np.array(lstm_pred).reshape(-1)
+        
+    # Ensure all arrays have the same length
+    min_len = min(len(y_test_arr), len(simplernn_arr), len(lstm_arr))
+    y_test_arr = y_test_arr[:min_len]
+    simplernn_arr = simplernn_arr[:min_len]
+    lstm_arr = lstm_arr[:min_len]
     
     simplernn_rmse = np.sqrt(mean_squared_error(y_test_arr, simplernn_arr))
     simplernn_mae = mean_absolute_error(y_test_arr, simplernn_arr)
