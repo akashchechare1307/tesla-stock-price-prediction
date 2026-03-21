@@ -1,3 +1,4 @@
+36
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,10 +10,12 @@ import yfinance as yf
 st.set_page_config(page_title="Tesla AI Stock Forecaster", page_icon="📈", layout="wide")
 
 @st.cache_data(ttl=60)
-def get_tesla_data():
+def get_tesla_data():background-color: #0d1117    background-color: #1e1e2e
+
     data = yf.download("TSLA", start="2014-01-01", end="2026-01-01", progress=False)
     if data.empty:
-        raise ValueError("No data fetched")
+        raise ValueError("No data fetched"): #0d1117;    : #0d1117;40
+        
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = data.columns.get_level_values(0)
     close_prices = data["Close"].dropna().values.astype(float)
