@@ -109,7 +109,7 @@ try:
     
     st.write("---")
     
-    y_test_unscaled = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
+    y_test_unscaled = scaler.inverse_transform(np.array(y_test).reshape(-1, 1)).flatten()
     simplernn_unscaled = scaler.inverse_transform(simplernn_pred.reshape(-1, 1)).flatten()
     lstm_unscaled = scaler.inverse_transform(lstm_pred.reshape(-1, 1)).flatten()
     
