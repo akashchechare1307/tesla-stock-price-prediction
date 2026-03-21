@@ -8,7 +8,7 @@ import yfinance as yf
 import warnings
 warnings.filterwarnings('ignore')
 
-st.markdown('<style>body{background-color:#000;color:#fff}.stApp{background-color:#000!important;color:#fff!important}*{color:#fff!important}</style>',unsafe_allow_html=True)
+st.markdown("<style>body{background-color:black;color:white}.stApp{background-color:black!important;color:white!important}</style>",unsafe_allow_html=True)
 
 st.set_page_config(page_title="Tesla AI Stock Forecaster", page_icon="📈", layout="wide")
 
